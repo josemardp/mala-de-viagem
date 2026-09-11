@@ -500,7 +500,7 @@
     var medItens = [];
     MEDICAMENTOS.forEach(function(m){
       var q = trip[m.periodo];
-      if(q > 0) medItens.push({ id:m.id, label:m.label, tag: m.dose + ' · ×' + q });
+      if(q > 0) medItens.push({ id:m.id, label:m.label, tag: q > 1 ? (m.dose + ' · ×' + q) : m.dose });
     });
     renderGroup(containers.remedio, groups.remedio, medItens);
 
