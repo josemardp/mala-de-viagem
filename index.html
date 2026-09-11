@@ -1,0 +1,548 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mala de Viagem</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+  :root{
+    --bg:#F2F3EE;
+    --surface:#FFFFFF;
+    --ink:#23251E;
+    --muted:#6E7166;
+    --line:#DCDDD3;
+    --accent:#C1631F;
+    --accent-soft:#F1DDC4;
+    --critical:#9C3B2E;
+    --critical-soft:#F3DCD5;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#181A16;
+      --surface:#212319;
+      --ink:#EDEEE6;
+      --muted:#9A9D8F;
+      --line:#34362C;
+      --accent:#E38A46;
+      --accent-soft:#3B2C1B;
+      --critical:#E2776A;
+      --critical-soft:#3A211D;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#181A16;
+    --surface:#212319;
+    --ink:#EDEEE6;
+    --muted:#9A9D8F;
+    --line:#34362C;
+    --accent:#E38A46;
+    --accent-soft:#3B2C1B;
+    --critical:#E2776A;
+    --critical-soft:#3A211D;
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{
+    background:var(--bg);
+    color:var(--ink);
+    margin:0;
+  }
+  body{
+    font-family:'Archivo', system-ui, sans-serif;
+    padding-inline:16px;
+    padding-block:32px;
+  }
+  .page{
+    max-width:600px;
+    margin-inline:auto;
+    display:flex;
+    flex-direction:column;
+    gap:1.75rem;
+  }
+
+  .masthead .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:.72rem;
+    font-weight:600;
+    letter-spacing:.12em;
+    color:var(--muted);
+    margin:0 0 .3rem;
+  }
+  .masthead h1{
+    font-family:'Big Shoulders Display', sans-serif;
+    font-weight:900;
+    text-transform:uppercase;
+    font-size:clamp(2.2rem, 9vw, 3rem);
+    line-height:.95;
+    letter-spacing:.01em;
+    margin:0;
+    text-wrap:balance;
+  }
+
+  .form-card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:1.25rem 1.35rem 1.4rem;
+  }
+  .form-card .group-note{
+    font-size:.88rem;
+    color:var(--muted);
+    margin:0 0 1rem;
+    max-width:40ch;
+  }
+  .field-grid{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:.7rem;
+    margin-bottom:1.1rem;
+  }
+  @media (max-width:460px){
+    .field-grid{ grid-template-columns:repeat(2, 1fr); }
+  }
+  .field{ display:flex; flex-direction:column; gap:.35rem; }
+  .field span{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:.7rem;
+    font-weight:600;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    color:var(--muted);
+  }
+  .field input{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:1.3rem;
+    font-weight:600;
+    font-variant-numeric:tabular-nums;
+    color:var(--ink);
+    background:var(--bg);
+    border:1px solid var(--line);
+    border-radius:7px;
+    padding:.4rem .5rem;
+    width:100%;
+    text-align:center;
+  }
+  .field input:focus-visible{ outline:2px solid var(--accent); outline-offset:1px; }
+
+  .btn-calc{
+    font-family:'Big Shoulders Display', sans-serif;
+    font-weight:800;
+    text-transform:uppercase;
+    letter-spacing:.03em;
+    font-size:1.05rem;
+    color:#fff;
+    background:var(--accent);
+    border:none;
+    border-radius:8px;
+    padding:.65rem 1.2rem;
+    width:100%;
+    cursor:pointer;
+    transition:filter .15s;
+  }
+  .btn-calc:hover{ filter:brightness(1.08); }
+  .btn-calc:focus-visible{ outline:2px solid var(--ink); outline-offset:2px; }
+
+  .progress-wrap{ display:flex; flex-direction:column; gap:.6rem; }
+  .progress{ display:flex; align-items:center; gap:.9rem; }
+  .progress-track{
+    flex:1;
+    height:8px;
+    background:var(--line);
+    border-radius:999px;
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;
+    width:0%;
+    background:var(--accent);
+    border-radius:999px;
+    transition:width .25s ease;
+  }
+  .progress-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:.78rem;
+    color:var(--muted);
+    white-space:nowrap;
+  }
+
+  .toggle-done{
+    display:flex;
+    align-items:center;
+    gap:.4rem;
+    align-self:flex-start;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:.35rem .8rem .35rem .65rem;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:.76rem;
+    color:var(--muted);
+    cursor:pointer;
+    transition:border-color .15s, color .15s;
+  }
+  .toggle-done:hover{ border-color:var(--accent); color:var(--ink); }
+  .toggle-done:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+  .toggle-done .chevron{
+    display:inline-block;
+    transition:transform .25s ease;
+    font-size:.85rem;
+  }
+  .toggle-done[aria-expanded="true"] .chevron{ transform:rotate(180deg); }
+
+  .group{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:1.25rem 1.35rem 1.4rem;
+  }
+  .group[hidden]{ display:none; }
+  .group h2{
+    font-family:'Big Shoulders Display', sans-serif;
+    font-weight:800;
+    text-transform:uppercase;
+    letter-spacing:.02em;
+    font-size:1.35rem;
+    margin:0 0 .2rem;
+  }
+  .group-note{
+    font-size:.88rem;
+    color:var(--muted);
+    margin:0 0 .9rem;
+    max-width:34ch;
+  }
+  .group.critical{ --accent:var(--critical); --accent-soft:var(--critical-soft); border-color:var(--critical-soft); }
+
+  .item{
+    display:grid;
+    grid-template-columns:auto 1fr;
+    grid-template-rows:1fr;
+    align-items:baseline;
+    column-gap:.75rem;
+    padding-block:.6rem;
+    border-bottom:1px solid var(--line);
+    cursor:pointer;
+    overflow:hidden;
+    transition:grid-template-rows .32s ease, opacity .28s ease, padding-block .32s ease, border-color .28s ease;
+  }
+  .item:last-of-type{ border-bottom:none; }
+  .item:has(input:checked){
+    grid-template-rows:0fr;
+    opacity:0;
+    padding-block:0;
+    border-bottom-color:transparent;
+  }
+  body.show-done .item:has(input:checked){
+    grid-template-rows:1fr;
+    opacity:1;
+    padding-block:.6rem;
+    border-bottom-color:var(--line);
+  }
+  .item input{
+    position:absolute;
+    opacity:0;
+    width:1px;
+    height:1px;
+  }
+  .box{
+    width:1.15rem;
+    height:1.15rem;
+    margin-top:.1rem;
+    border:2px solid var(--muted);
+    border-radius:5px;
+    position:relative;
+    transition:background .15s, border-color .15s;
+  }
+  .item input:checked + .box{
+    background:var(--accent);
+    border-color:var(--accent);
+  }
+  .item input:checked + .box::after{
+    content:"";
+    position:absolute;
+    left:3px;
+    top:-1px;
+    width:5px;
+    height:9px;
+    border:solid white;
+    border-width:0 2px 2px 0;
+    transform:rotate(40deg);
+  }
+  .item input:focus-visible + .box{
+    outline:2px solid var(--accent);
+    outline-offset:2px;
+  }
+  .text{ font-size:.98rem; min-height:0; }
+  .item input:checked ~ .text{
+    color:var(--muted);
+    text-decoration:line-through;
+    text-decoration-color:var(--line);
+  }
+  .tag{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:.76rem;
+    font-weight:600;
+    color:var(--ink);
+    background:var(--accent-soft);
+    padding:.1rem .45rem;
+    border-radius:5px;
+    margin-left:.4rem;
+    white-space:nowrap;
+  }
+  .item input:checked ~ .text .tag{ color:var(--muted); background:transparent; }
+
+  .empty-note{
+    font-size:.9rem;
+    color:var(--muted);
+    text-align:center;
+    padding-block:1rem;
+  }
+
+  footer.note{
+    font-size:.8rem;
+    color:var(--muted);
+    text-align:center;
+    padding-block:.5rem 1rem;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="masthead">
+    <p class="eyebrow">PADRÃO DE VIAGEM</p>
+    <h1>Mala de Viagem</h1>
+  </header>
+
+  <section class="form-card" aria-label="Dados da viagem">
+    <p class="group-note">Diga quantos dias, manhãs, tardes e noites você vai passar fora de casa. A mala calcula o resto.</p>
+    <div class="field-grid">
+      <label class="field"><span>Dias</span><input type="number" min="0" id="in-dias" value="2"></label>
+      <label class="field"><span>Manhãs</span><input type="number" min="0" id="in-manhas" value="1"></label>
+      <label class="field"><span>Tardes</span><input type="number" min="0" id="in-tardes" value="1"></label>
+      <label class="field"><span>Noites</span><input type="number" min="0" id="in-noites" value="1"></label>
+    </div>
+    <button type="button" class="btn-calc" id="calc">Calcular mala</button>
+  </section>
+
+  <div class="progress-wrap">
+    <div class="progress" aria-live="polite">
+      <div class="progress-track"><div class="progress-fill" id="fill"></div></div>
+      <span class="progress-label" id="progressLabel">0 de 0 prontos</span>
+    </div>
+    <button type="button" class="toggle-done" id="toggleDone" aria-expanded="false" hidden>
+      <span class="chevron" aria-hidden="true">▾</span>
+      <span id="toggleDoneLabel">Ver escondidos</span>
+    </button>
+  </div>
+
+  <section class="group" id="group-roupa">
+    <h2>Roupa</h2>
+    <div id="items-roupa"></div>
+  </section>
+
+  <section class="group critical" id="group-remedio">
+    <h2>Remédio</h2>
+    <p class="group-note">Separe as doses do estoque de casa antes de sair.</p>
+    <div id="items-remedio"></div>
+  </section>
+
+  <section class="group" id="group-docs">
+    <h2>Documento e carro</h2>
+    <div id="items-docs"></div>
+  </section>
+
+  <section class="group" id="group-higiene">
+    <h2>Higiene</h2>
+    <div id="items-higiene"></div>
+  </section>
+
+  <footer class="note">As marcações ficam salvas neste navegador. Mude os números e clique em Calcular para uma nova viagem.</footer>
+
+</div>
+
+<script>
+(function(){
+  var STORAGE_KEY = 'mala-de-viagem-v1';
+
+  var ROUPA_RULES = [
+    { id:'roupa-tectel',  label:'Calça tectel',  qty:function(){ return 1; } },
+    { id:'roupa-jeans',   label:'Calça jeans',   qty:function(){ return 1; } },
+    { id:'roupa-tenis',   label:'Tênis',         qty:function(){ return 1; } },
+    { id:'roupa-sair',    label:'Camiseta de sair',        qty:function(t){ return t.noites; } },
+    { id:'roupa-casa',    label:'Camiseta de ficar em casa', qty:function(t){ return t.dias; } },
+    { id:'roupa-cueca',   label:'Cueca',         qty:function(t){ return 2 * t.dias; } },
+    { id:'roupa-meia',    label:'Meia branca',   qty:function(t){ return 2 * t.dias; } },
+    { id:'roupa-pijama',  label:'Pijama',        qty:function(t){ return Math.ceil(t.dias / 2); } }
+  ];
+
+  var MEDICAMENTOS = [
+    { id:'med-remedio-a', label:'Remedio A', dose:'1 un', periodo:'dia' },
+    { id:'med-remedio-b',  label:'Remedio B',  dose:'1 un',  periodo:'dia' },
+    { id:'med-remedio-c',    label:'Remedio C',    dose:'1 un',   periodo:'dia' },
+    { id:'med-remedio-d',      label:'Remedio D',      dose:'1 un',   periodo:'dia' },
+    { id:'med-remedio-e',   label:'Remedio E',   dose:'1 un',   periodo:'dia' }
+  ];
+
+  var DOCS_FIXOS = [
+    { id:'doc-rg',          label:'RG ou CNH' },
+    { id:'doc-crlv',        label:'Documento do carro (CRLV)' },
+    { id:'doc-combustivel', label:'Combustível verificado' },
+    { id:'doc-carregador',  label:'Carregador de celular' }
+  ];
+
+  var HIGIENE_FIXOS = [
+    { id:'hig-escova',      label:'Escova de dente e pasta' },
+    { id:'hig-desodorante', label:'Desodorante' },
+    { id:'hig-barbeador',   label:'Barbeador' }
+  ];
+
+  var dias = document.getElementById('in-dias');
+  var manhas = document.getElementById('in-manhas');
+  var tardes = document.getElementById('in-tardes');
+  var noites = document.getElementById('in-noites');
+  var calcBtn = document.getElementById('calc');
+  var fill = document.getElementById('fill');
+  var progressLabel = document.getElementById('progressLabel');
+  var toggleBtn = document.getElementById('toggleDone');
+  var toggleLabel = document.getElementById('toggleDoneLabel');
+
+  var containers = {
+    roupa: document.getElementById('items-roupa'),
+    remedio: document.getElementById('items-remedio'),
+    docs: document.getElementById('items-docs'),
+    higiene: document.getElementById('items-higiene')
+  };
+  var groups = {
+    roupa: document.getElementById('group-roupa'),
+    remedio: document.getElementById('group-remedio'),
+    docs: document.getElementById('group-docs'),
+    higiene: document.getElementById('group-higiene')
+  };
+
+  var checkedMap = {};
+  try{
+    var saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+    if(saved){
+      dias.value = saved.inputs.dias;
+      manhas.value = saved.inputs.manhas;
+      tardes.value = saved.inputs.tardes;
+      noites.value = saved.inputs.noites;
+      checkedMap = saved.checked || {};
+    }
+  }catch(e){ checkedMap = {}; }
+
+  function saveState(trip){
+    try{
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ inputs: trip, checked: checkedMap }));
+    }catch(e){}
+  }
+
+  function makeItem(id, label, tagText){
+    var wrap = document.createElement('label');
+    wrap.className = 'item';
+    var input = document.createElement('input');
+    input.type = 'checkbox';
+    input.id = id;
+    input.checked = !!checkedMap[id];
+    var box = document.createElement('span');
+    box.className = 'box';
+    box.setAttribute('aria-hidden', 'true');
+    var text = document.createElement('span');
+    text.className = 'text';
+    text.textContent = label;
+    if(tagText){
+      var tag = document.createElement('span');
+      tag.className = 'tag';
+      tag.textContent = tagText;
+      text.appendChild(tag);
+    }
+    wrap.appendChild(input);
+    wrap.appendChild(box);
+    wrap.appendChild(text);
+    input.addEventListener('change', function(){
+      checkedMap[id] = input.checked;
+      var trip = readTrip();
+      saveState(trip);
+      updateProgress();
+    });
+    return wrap;
+  }
+
+  function renderGroup(container, group, items){
+    container.innerHTML = '';
+    items.forEach(function(it){
+      container.appendChild(makeItem(it.id, it.label, it.tag));
+    });
+    group.hidden = items.length === 0;
+  }
+
+  function readTrip(){
+    return {
+      dias: Math.max(0, parseInt(dias.value, 10) || 0),
+      manhas: Math.max(0, parseInt(manhas.value, 10) || 0),
+      tardes: Math.max(0, parseInt(tardes.value, 10) || 0),
+      noites: Math.max(0, parseInt(noites.value, 10) || 0)
+    };
+  }
+
+  function calcular(){
+    var trip = readTrip();
+
+    var roupaItens = [];
+    ROUPA_RULES.forEach(function(r){
+      var q = r.qty(trip);
+      if(q > 0) roupaItens.push({ id:r.id, label:r.label, tag: q > 1 ? ('×' + q) : null });
+    });
+    renderGroup(containers.roupa, groups.roupa, roupaItens);
+
+    var medItens = [];
+    MEDICAMENTOS.forEach(function(m){
+      var q = trip[m.periodo];
+      if(q > 0) medItens.push({ id:m.id, label:m.label, tag: m.dose + ' · ×' + q });
+    });
+    renderGroup(containers.remedio, groups.remedio, medItens);
+
+    renderGroup(containers.docs, groups.docs, DOCS_FIXOS);
+    renderGroup(containers.higiene, groups.higiene, HIGIENE_FIXOS);
+
+    saveState(trip);
+    updateProgress();
+  }
+
+  function updateProgress(){
+    var boxes = Array.prototype.slice.call(document.querySelectorAll('.item input[type="checkbox"]'));
+    var checked = boxes.filter(function(b){ return b.checked; }).length;
+    var pct = boxes.length ? (checked / boxes.length) * 100 : 0;
+    fill.style.width = pct + '%';
+    progressLabel.textContent = checked + ' de ' + boxes.length + ' prontos';
+    updateToggle(checked);
+  }
+
+  function updateToggle(checkedCount){
+    if(checkedCount === 0){
+      toggleBtn.hidden = true;
+      return;
+    }
+    toggleBtn.hidden = false;
+    var expanded = document.body.classList.contains('show-done');
+    toggleBtn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+    toggleLabel.textContent = expanded
+      ? 'Esconder os concluídos'
+      : ('Ver os ' + checkedCount + ' escondidos');
+  }
+
+  toggleBtn.addEventListener('click', function(){
+    document.body.classList.toggle('show-done');
+    var boxes = Array.prototype.slice.call(document.querySelectorAll('.item input[type="checkbox"]'));
+    var checked = boxes.filter(function(b){ return b.checked; }).length;
+    updateToggle(checked);
+  });
+
+  calcBtn.addEventListener('click', calcular);
+  calcular();
+})();
+</script>
+</body>
+</html>
