@@ -372,9 +372,9 @@
     { id:'roupa-tenis',   label:'Tênis',         qty:function(){ return 1; } },
     { id:'roupa-havaianas', label:'Chinelo Havaianas', qty:function(){ return 1; } },
     { id:'roupa-cinta',   label:'Cinta',         qty:function(){ return 1; } },
-    { id:'roupa-sair',    label:'Camiseta de sair',        qty:function(t){ return t.noites; } },
+    { id:'roupa-sair',    label:'Camiseta de sair',        qty:function(t){ return t.noites > 0 ? t.noites + 1 : 0; } },
     { id:'roupa-casa',    label:'Camiseta de ficar em casa', qty:function(t){ return t.dias; } },
-    { id:'roupa-cueca',   label:'Cueca',         qty:function(t){ return 2 * t.dias; } },
+    { id:'roupa-cueca',   label:'Cueca',         qty:function(t){ return t.dias > 0 ? 2 * t.dias + 1 : 0; } },
     { id:'roupa-meia',    label:'Meia branca',   qty:function(t){ return 2 * t.dias; } },
     { id:'roupa-pijama',  label:'Pijama',        qty:function(t){ return Math.ceil(t.dias / 2); } }
   ];

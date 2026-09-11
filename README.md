@@ -6,12 +6,15 @@ higiene com a quantidade certa de cada item.
 
 ## Regras de roupa
 
-- Camiseta de sair: 1 por noite
+- Camiseta de sair: 1 por noite, mais 1 pensando na saída do dia da volta
 - Camiseta de ficar em casa: 1 por dia
-- Cueca: 2 por dia
+- Cueca: 2 por dia, mais 1 de reserva
 - Meia branca: 2 por dia
 - Pijama: 1 a cada 2 dias
-- Calça tectel, calça jeans e tênis: 1 de cada, fixo
+- Calça tectel, calça jeans, tênis, chinelo Havaianas e cinta: 1 de cada, fixo
+
+A reserva de cueca e o +1 de camiseta de sair só entram se a viagem tiver pelo
+menos 1 dia ou 1 noite (viagem em branco não gera item).
 
 ## Remédio
 
