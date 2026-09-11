@@ -530,7 +530,7 @@
     toggleBtn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
     toggleLabel.textContent = expanded
       ? 'Esconder os concluídos'
-      : ('Ver os ' + checkedCount + ' escondidos');
+      : (checkedCount === 1 ? 'Ver o 1 escondido' : ('Ver os ' + checkedCount + ' escondidos'));
   }
 
   toggleBtn.addEventListener('click', function(){
