@@ -18,8 +18,18 @@ menos 1 dia ou 1 noite (viagem em branco não gera item).
 
 ## Remédio
 
-A lista de remédio (nome, dose e se é de manhã ou de noite) está no array
-`MEDICAMENTOS` dentro de [index.html](index.html). Se o esquema mudar, edita ali.
+A lista de remédio **não fica no código**. Quem usa cadastra na própria página, no
+bloco "Meus remédios", e a lista é guardada só no `localStorage` daquele navegador.
+
+Isso é de propósito. Nome e dose de medicamento são dado de saúde: não entram em
+arquivo versionado nem em site publicado. Como a lista vive no navegador, a
+ferramenta funciona igual e o repositório pode ser público sem expor ninguém.
+
+Consequências práticas:
+
+- Cada navegador tem a própria lista. Trocar de aparelho pede cadastrar de novo.
+- Limpar os dados do site apaga a lista.
+- O grupo "Remédio" da mala só aparece depois que existe pelo menos um cadastro.
 
 ## Publicado em
 

@@ -305,6 +305,44 @@
     text-align:center;
     padding-block:.5rem 1rem;
   }
+
+  .med-lista{ display:flex; flex-direction:column; gap:.4rem; margin-bottom:.9rem; }
+  .med-lista:empty{ display:none; }
+  .med-row{
+    display:flex; align-items:center; gap:.6rem;
+    padding:.5rem .7rem;
+    background:var(--bg);
+    border:1px solid var(--line);
+    border-radius:8px;
+  }
+  .med-row .nome{ font-weight:600; }
+  .med-row .meta{ color:var(--muted); font-size:.85rem; margin-left:auto; }
+  .med-row button{
+    border:none; background:none; cursor:pointer;
+    color:var(--critical); font-size:1.1rem; line-height:1;
+    padding:.2rem .35rem; border-radius:6px;
+  }
+  .med-row button:hover{ background:var(--critical-soft); }
+  .med-form{ display:flex; flex-wrap:wrap; gap:.5rem; }
+  .med-form input, .med-form select{
+    flex:1 1 7rem; min-width:0;
+    padding:.55rem .65rem;
+    font:inherit; font-size:.95rem;
+    color:var(--ink); background:var(--surface);
+    border:1px solid var(--line); border-radius:8px;
+  }
+  .med-form input:focus, .med-form select:focus{
+    outline:2px solid var(--accent); outline-offset:1px;
+  }
+  .med-add{
+    flex:0 0 auto;
+    font-family:'Big Shoulders Display', sans-serif;
+    font-weight:800; text-transform:uppercase; letter-spacing:.03em;
+    font-size:.95rem; color:#fff; background:var(--accent);
+    border:none; border-radius:8px; padding:.55rem 1.1rem; cursor:pointer;
+  }
+  .med-add:hover{ filter:brightness(1.08); }
+  .med-vazio{ color:var(--muted); font-size:.88rem; margin:0 0 .9rem; }
 </style>
 </head>
 <body>
@@ -348,6 +386,26 @@
     <div id="items-remedio"></div>
   </section>
 
+  <section class="group" id="group-med-cad">
+    <h2>Meus remédios</h2>
+    <p class="group-note">
+      Cadastre uma vez e fica salvo <strong>só neste navegador</strong>. Não vai para
+      a internet, não fica no código do site e ninguém mais vê.
+    </p>
+    <div id="med-lista" class="med-lista"></div>
+    <form id="med-form" class="med-form" autocomplete="off">
+      <input type="text" id="med-nome" placeholder="Nome" maxlength="40" required>
+      <input type="text" id="med-dose" placeholder="Dose" maxlength="20">
+      <select id="med-periodo">
+        <option value="manhas">Manhã</option>
+        <option value="noites">Noite</option>
+        <option value="tardes">Tarde</option>
+        <option value="dias">Todo dia</option>
+      </select>
+      <button type="submit" class="med-add">Adicionar</button>
+    </form>
+  </section>
+
   <section class="group" id="group-docs">
     <h2>Documento e carro</h2>
     <div id="items-docs"></div>
@@ -379,13 +437,28 @@
     { id:'roupa-pijama',  label:'Pijama',        qty:function(t){ return Math.ceil(t.dias / 2); } }
   ];
 
-  var MEDICAMENTOS = [
-    { id:'med-remedio-a', label:'Remedio A', dose:'1 un', periodo:'dia' },
-    { id:'med-remedio-b',  label:'Remedio B',  dose:'1 un',  periodo:'dia' },
-    { id:'med-remedio-c',    label:'Remedio C',    dose:'1 un',   periodo:'dia' },
-    { id:'med-remedio-d',      label:'Remedio D',      dose:'1 un',   periodo:'dia' },
-    { id:'med-remedio-e',   label:'Remedio E',   dose:'1 un',   periodo:'dia' }
-  ];
+  // A lista de remédio NAO fica no código. Ela é cadastrada por quem usa e
+  // guardada só no navegador (localStorage), porque nome e dose de medicamento
+  // são dado de saúde e não entram em arquivo versionado.
+  var MED_KEY = 'mala-de-viagem-remedios-v1';
+  var MEDICAMENTOS = [];
+
+  function carregarRemedios(){
+    try {
+      var salvos = JSON.parse(localStorage.getItem(MED_KEY) || '[]');
+      MEDICAMENTOS = Array.isArray(salvos) ? salvos : [];
+    } catch(e) {
+      MEDICAMENTOS = [];
+    }
+  }
+
+  function salvarRemedios(){
+    try {
+      localStorage.setItem(MED_KEY, JSON.stringify(MEDICAMENTOS));
+    } catch(e) {
+      // Armazenamento bloqueado: a lista vale só enquanto a aba estiver aberta.
+    }
+  }
 
   var DOCS_FIXOS = [
     { id:'doc-rg',          label:'RG ou CNH' },
@@ -502,7 +575,13 @@
     var medItens = [];
     MEDICAMENTOS.forEach(function(m){
       var q = trip[m.periodo];
-      if(q > 0) medItens.push({ id:m.id, label:m.label, tag: q > 1 ? (m.dose + ' · ×' + q) : m.dose });
+      if(q > 0){
+        // A dose é opcional no cadastro, então a etiqueta monta só com o que existe.
+        var partes = [];
+        if(m.dose) partes.push(m.dose);
+        if(q > 1) partes.push('×' + q);
+        medItens.push({ id:m.id, label:m.label, tag: partes.length ? partes.join(' · ') : null });
+      }
     });
     renderGroup(containers.remedio, groups.remedio, medItens);
 
@@ -541,6 +620,76 @@
     var checked = boxes.filter(function(b){ return b.checked; }).length;
     updateToggle(checked);
   });
+
+  // ---- Cadastro de remédio (fica só no navegador de quem usa) ----
+  var medLista   = document.getElementById('med-lista');
+  var medForm    = document.getElementById('med-form');
+  var medNome    = document.getElementById('med-nome');
+  var medDose    = document.getElementById('med-dose');
+  var medPeriodo = document.getElementById('med-periodo');
+
+  var PERIODO_LABEL = { manhas:'manhã', noites:'noite', tardes:'tarde', dias:'todo dia' };
+
+  function renderMedLista(){
+    medLista.innerHTML = '';
+    if(MEDICAMENTOS.length === 0){
+      var vazio = document.createElement('p');
+      vazio.className = 'med-vazio';
+      vazio.textContent = 'Nenhum remédio cadastrado. O grupo "Remédio" só aparece depois que você cadastrar.';
+      medLista.appendChild(vazio);
+      return;
+    }
+    MEDICAMENTOS.forEach(function(m, i){
+      var row = document.createElement('div');
+      row.className = 'med-row';
+
+      var nome = document.createElement('span');
+      nome.className = 'nome';
+      nome.textContent = m.label;
+
+      var meta = document.createElement('span');
+      meta.className = 'meta';
+      meta.textContent = [m.dose, PERIODO_LABEL[m.periodo] || m.periodo]
+        .filter(Boolean).join(' · ');
+
+      var rm = document.createElement('button');
+      rm.type = 'button';
+      rm.textContent = '×';
+      rm.setAttribute('aria-label', 'Remover ' + m.label);
+      rm.addEventListener('click', function(){
+        MEDICAMENTOS.splice(i, 1);
+        salvarRemedios();
+        renderMedLista();
+        calcular();
+      });
+
+      row.appendChild(nome);
+      row.appendChild(meta);
+      row.appendChild(rm);
+      medLista.appendChild(row);
+    });
+  }
+
+  medForm.addEventListener('submit', function(e){
+    e.preventDefault();
+    var nome = medNome.value.trim();
+    if(!nome) return;
+    MEDICAMENTOS.push({
+      id: 'med-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7),
+      label: nome,
+      dose: medDose.value.trim(),
+      periodo: medPeriodo.value
+    });
+    salvarRemedios();
+    medNome.value = '';
+    medDose.value = '';
+    medNome.focus();
+    renderMedLista();
+    calcular();
+  });
+
+  carregarRemedios();
+  renderMedLista();
 
   calcBtn.addEventListener('click', calcular);
   calcular();
